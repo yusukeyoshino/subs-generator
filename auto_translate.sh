@@ -21,7 +21,7 @@ if [ ! -f "$ENGLISH_SRT" ] || [ ! -f "$WORD_JSON" ]; then
     --model medium \
     --language en \
     --word_timestamps True \
-    --output_format "srt,json" \
+    --output_format "all" \
     --output_dir .
 else
   echo "✅ Found existing subtitle files."
