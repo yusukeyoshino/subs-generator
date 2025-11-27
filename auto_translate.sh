@@ -13,7 +13,7 @@ echo "🎬 Processing: $INPUT_FILE"
 
 
 # ----------------------------------------------------------------------
-# 0️⃣ Whisperで「英語SRT」＋「単語タイムコードJSON」生成
+# 0️⃣ Generate English SRT + word-level timestamp JSON with Whisper
 # ----------------------------------------------------------------------
 if [ ! -f "$ENGLISH_SRT" ] || [ ! -f "$WORD_JSON" ]; then
   echo "🎧 Generating English subtitles + word timestamps with Whisper..."
@@ -29,7 +29,7 @@ fi
 
 
 # ----------------------------------------------------------------------
-# 0.5️⃣ JSON → word-level SRT (_words.srt) 自動生成
+# 0.5️⃣ Convert JSON → word-level SRT (_words.srt)
 # ----------------------------------------------------------------------
 if [ ! -f "$WORD_SRT" ]; then
   echo "🧠 Creating word-level SRT from Whisper JSON..."
@@ -76,7 +76,7 @@ fi
 
 
 # ----------------------------------------------------------------------
-# 1️⃣ SRT翻訳（全文一括）
+# 1️⃣ Translate SRT (full file in a single API call)
 # ----------------------------------------------------------------------
 if [ -f "$JA_SRT" ]; then
   echo "⏩ Found existing Japanese SRT, skipping translation."
@@ -130,11 +130,11 @@ fi
 
 
 # ----------------------------------------------------------------------
-# 2️⃣ FCPXML生成 (日本語SRT → XML)
+# 2️⃣ Generate FCPXML (convert Japanese SRT → XML)
 # ----------------------------------------------------------------------
 echo "🧩 Generating Final Cut XML..."
 
-# 💥 ここで必ず再セット（これが重要）
+# 💥 Reset variables again (important)
 JA_SRT="${BASENAME}_ja.srt"
 OUTPUT_XML="${BASENAME}_ja.fcpxml"
 
@@ -192,7 +192,7 @@ uid_event = uuid.uuid4().hex.upper()
 uid_project = uuid.uuid4().hex.upper()
 moddate = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S +0000")
 
-# ==== duration は SRT の最終 end 秒 ====
+# ==== Duration = last SRT end time ====
 total_duration_sec = max(e for _,e,_,_ in entries)
 total_duration_frame = to_frame_time(total_duration_sec)
 
@@ -213,7 +213,7 @@ xml.append(f'        <sequence format="r1" duration="{total_duration_frame}" tcS
 xml.append('          <spine>')
 xml.append(f'            <gap name="Gap" offset="0s" start="0s" duration="{total_duration_frame}">')
 
-# ==== 字幕本体 ====
+# ==== Main subtitle loop ====
 for i, (start_s, end_s, dur_s, text) in enumerate(entries, start=1):
     start = to_frame_time(start_s)
     dur   = to_frame_time(dur_s)
@@ -221,7 +221,7 @@ for i, (start_s, end_s, dur_s, text) in enumerate(entries, start=1):
     xml.append(f'              <title ref="r2" lane="1" name="{text} - Basic Title" offset="{start}" start="{start}" duration="{dur}">')
     xml.append('                <param name="Flatten" key="9999/999166631/999166633/2/351" value="1"/>')
 
-    # Final Cut が生成する2つの Alignment param
+    # Default Alignment params used by Final Cut
     xml.append('                <param name="Alignment" key="9999/999166631/999166633/2/354/3142713059/401" value="1 (Center)"/>')
     xml.append('                <param name="Alignment" key="9999/999166631/999166633/2/354/999169573/401" value="1 (Center)"/>')
 
@@ -238,7 +238,7 @@ xml.append('          </spine>')
 xml.append('        </sequence>')
 xml.append('      </project>')
 
-# ==== smart-collection (1つ目XMLに合わせた) ====
+# ==== Smart collections (same as first XML) ====
 xml.append('      <smart-collection name="Projects" match="all"><match-clip rule="is" type="project"/></smart-collection>')
 xml.append('      <smart-collection name="All Video" match="any"><match-media rule="is" type="videoOnly"/><match-media rule="is" type="videoWithAudio"/></smart-collection>')
 xml.append('      <smart-collection name="Audio Only" match="all"><match-media rule="is" type="audioOnly"/></smart-collection>')
