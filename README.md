@@ -1,192 +1,141 @@
-🎬 Auto Subtitle Pipeline (Whisper → Translation → FCPXML)
+# 🎬 Auto Subtitle Pipeline (Whisper → Translation → FCPXML)
 
-This script provides a fully automated pipeline for generating English subtitles, word-level timestamps, Japanese translations, and Final Cut Pro–ready FCPXML files from any audio or video input.
+This script provides a fully automated pipeline for generating English subtitles, word-level timestamps, Japanese translations, and Final Cut Pro–ready FCPXML files.
 
-It is designed for YouTube creators, editors, and anyone who needs fast and accurate subtitle workflows with Whisper + GPT + Final Cut Pro.
+It is designed for YouTube creators, editors, and anyone needing fast, high-quality subtitle automation using Whisper, GPT, and Final Cut Pro.
 
-🚀 Features
-✅ 1. Automatic English SRT + word-level timestamps
+---
 
-Uses OpenAI Whisper (CLI)
+## 🚀 Features
+
+### 1. Automatic English Subtitles (Whisper)
+Generates:
+- `<basename>.srt` — English SRT  
+- `<basename>.json` — Word-level timestamp data  
+
+### 2. Automatic Word-Level SRT
+Converts Whisper JSON into:
+- `<basename>_words.srt`
+
+### 3. Natural Japanese Translation (GPT-5)
+- Translates the entire SRT in one API call  
+- Preserves all timecodes and block numbers  
+- No merging, splitting, or reordering  
+- Produces natural conversational Japanese  
+- Output:
+  - `<basename>_ja.srt`
+
+### 4. Final Cut Pro XML Export
+- Generates FCPXML title items for each subtitle line  
+- Auto-calculates offset and duration  
+- Uses Basic Title with styling  
+- Output:
+  - `<basename>_ja.fcpxml`
+
+---
+
+## 📦 Requirements
+
+### Whisper CLI
+    pip install -U openai-whisper
+
+### OpenAI API Key
+    export OPENAI_API_KEY="your-key-here"
+
+### Python 3.9+
+
+---
+
+## 📁 Input / Output Example
+
+Input:
+    video.mp4
 
 Outputs:
+    video.srt               # English SRT
+    video.json              # Whisper JSON timestamps
+    video_words.srt         # Word-level SRT
+    video_ja.srt            # Japanese translated SRT
+    video_ja.fcpxml         # Final Cut Pro XML
 
-<basename>.srt — English subtitles
+---
 
-<basename>.json — Detailed segment + word timestamps
-
-✅ 2. Auto-generated word-level SRT
-
-Converts Whisper’s JSON into a clean:
-
-<basename>_words.srt
-
-✅ 3. High-quality Japanese translation (GPT-5)
-
-Translates the entire SRT in a single API call
-
-Ensures:
-
-Block numbers unchanged
-
-Timecodes unchanged
-
-No merging/splitting/reordering
-
-Natural spoken Japanese, YouTube-ready
-
-Output:
-
-<basename>_ja.srt
-
-✅ 4. Automatic Final Cut Pro XML (FCPXML)
-
-Converts Japanese SRT into .fcpxml
-
-Every subtitle line becomes a separate Basic Title item
-
-Includes:
-
-Proper offsets
-
-Correct duration per subtitle
-
-Font + style settings
-
-Output:
-
-<basename>_ja.fcpxml
-
-📦 Requirements
-Whisper CLI
-
-Install via pip:
-
-pip install -U openai-whisper
-
-OpenAI API Key
-
-Set environment variable:
-
-export OPENAI_API_KEY="your-key-here"
-
-Python 3.9+ required
-📁 Input / Output Structure
-
-Given input:
-
-video.mp4
-
-
-The script produces:
-
-video.srt               # Whisper English subtitles
-video.json              # Whisper word-level timestamps
-video_words.srt         # Word-by-word SRT
-video_ja.srt            # Japanese-translated SRT
-video_ja.fcpxml         # Final Cut importable subtitle project
-
-🔧 Usage
+## 🔧 Usage
 
 Run:
+    ./subtitles.sh input.mp4
 
-./subtitles.sh input.mp4
+The script automatically skips any steps that already have output files.
 
+---
 
-The script automatically detects existing output files and skips steps that are already completed.
+## 🧠 Translation Rules (strict)
 
-🧠 Translation Rules (strict)
+1. Keep SRT block numbers unchanged  
+2. Keep timestamps unchanged  
+3. Do not merge or split lines  
+4. Translate text lines only  
+5. Output valid SRT  
+6. Use natural conversational Japanese  
+7. Keep filler/reaction words simple  
 
-The translation step enforces:
+---
 
-Keep all SRT block numbers exactly the same
+## 🧩 Final Cut Pro XML Details
 
-Keep all timestamps exactly the same
+The generated FCPXML uses:
 
-Do not merge or split lines
-
-Translate only spoken text
-
-Output valid SRT
-
-Use natural conversational Japanese suitable for YouTube
-
-Keep filler words minimal but natural
-
-This ensures full compatibility with video editors like Final Cut Pro.
-
-🧩 Final Cut Pro XML Export
-
-The generated .fcpxml file:
-
-Uses the Basic Title effect
-
-Inserts each subtitle as an individual <title> element
-
-Uses 1/25s frame duration (25 fps)
-
-Automatically calculates:
-
-Offset
-
-Duration
-
-Applies style:
-
-Center alignment
-
-Helvetica font
-
-60 pt
-
-White text
+- Basic Title  
+- 25 fps (`1/25s` frameDuration)  
+- Center alignment  
+- Helvetica Regular  
+- 60 pt white text  
+- One `<title>` per subtitle line  
 
 This can be imported directly into Final Cut Pro.
 
-🔍 Troubleshooting
-Whisper not found
+---
 
-Install:
+## 🔍 Troubleshooting
 
-pip install openai-whisper
+Whisper not found:
+    pip install openai-whisper
 
-JSON missing or empty
+JSON missing or empty:
+    rm *.json *.srt
+    ./subtitles.sh input.mp4
 
-Delete old files and re-run:
+API key issues:
+    export OPENAI_API_KEY=your-key
 
-rm *.json *.srt
-./subtitles.sh input.mp4
+---
 
-OpenAI API issues
+## 📁 Example Directory Layout
 
-Ensure:
+    project/
+     ├── subtitles.sh
+     ├── input.mp4
+     ├── input.srt
+     ├── input.json
+     ├── input_words.srt
+     ├── input_ja.srt
+     └── input_ja.fcpxml
 
-export OPENAI_API_KEY=<valid key>
+---
 
-📁 Example Directory Layout
-project/
- ├── subtitles.sh
- ├── input.mp4
- ├── input.srt
- ├── input.json
- ├── input_words.srt
- ├── input_ja.srt
- └── input_ja.fcpxml
+## 📄 License
 
-📄 License
+MIT License.
 
-MIT License — feel free to modify and reuse.
+---
 
-🙋 Support
+## 🙋 Support
 
-If you'd like:
+If you want enhancements such as:
 
-a GUI version
+- GUI version  
+- Batch processing  
+- OpenAI Responses API version  
+- Automated YouTube upload integration  
 
-batch-processing for multiple videos
-
-a workflow using the new OpenAI Responses API
-
-automatic YouTube upload integration
-
-Just ask!
+Just let me know!
